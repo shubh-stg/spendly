@@ -1,0 +1,205 @@
+/* Landing hero + dashboard preview */
+.landing-hero {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.hero-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.landing-heading {
+    font-family: var(--font-display);
+    font-size: 76px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.5rem;
+}
+
+.landing-heading-dark {
+    display: block;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.landing-heading-green {
+    display: block;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.landing-subtitle {
+    font-size: 28px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+    margin: 0 0 2.5rem;
+}
+
+.landing-ctas {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 4rem;
+}
+
+.landing-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 66px;
+    padding: 0 2rem;
+    border-radius: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 24px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.landing-btn:hover {
+    background: var(--accent);
+}
+
+/* Dashboard preview */
+.dashboard-preview {
+    width: 1000px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #F7F7F5;
+    border: 1px solid #E1DED8;
+    border-radius: 23px;
+    padding: 27px;
+    box-sizing: border-box;
+}
+
+.dashboard-dots {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+
+.stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.stat-card {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #E1DED8;
+    border-radius: 17px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 33px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.stat-support {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.stat-red { color: #c0392b; }
+.stat-green { color: var(--accent); }
+.stat-gray { color: var(--ink-muted); }
+
+.category-card {
+    background: #ffffff;
+    border: 1px solid #E1DED8;
+    border-radius: 17px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.category-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: center;
+    gap: 16px;
+}
+
+.category-label {
+    color: var(--ink-muted);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.progress-track {
+    height: 14px;
+    background: #F0EEE8;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.progress-food { background: #F49B22; }
+.progress-travel { background: #398DE0; }
+.progress-bills { background: #8176E5; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .landing-heading { font-size: 56px; }
+    .landing-subtitle { font-size: 22px; }
+    .landing-btn { font-size: 20px; height: 58px; }
+    .dashboard-preview { width: 100%; }
+    .stat-value { font-size: 28px; }
+}
+
+@media (max-width: 720px) {
+    .landing-hero { padding: 4rem 1.25rem 3rem; }
+    .landing-heading { font-size: 40px; }
+    .landing-subtitle { font-size: 18px; }
+    .landing-ctas { flex-direction: column; align-items: center; }
+    .landing-btn { width: 100%; max-width: 320px; }
+    .stats-row { flex-direction: column; }
+    .category-row { grid-template-columns: 70px 1fr; }
+}
