@@ -69,7 +69,7 @@ def login():
 
         session["user_id"] = user["id"]
         session["user_name"] = user["name"]
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     return render_template("login.html")
 
@@ -97,8 +97,41 @@ def privacy():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        flash("Please log in to view your profile.", "error")
+        return redirect(url_for("login"))
 
+    user = {
+        "name": "Alex Kumar",
+        "email": "alex@example.com",
+        "initials": "AK",
+        "member_since": "January 2024",
+    }
+    stats = {
+        "total_spent": "12,480",
+        "transaction_count": 24,
+        "top_category": "Food",
+    }
+    transactions = [
+        {"date": "2024-05-12", "description": "Groceries — Big Bazaar", "category": "Food", "amount": "1,240"},
+        {"date": "2024-05-10", "description": "Monthly electricity bill", "category": "Bills", "amount": "2,100"},
+        {"date": "2024-05-08", "description": "Uber ride to office", "category": "Transport", "amount": "320"},
+        {"date": "2024-05-05", "description": "Movie tickets", "category": "Entertainment", "amount": "600"},
+    ]
+    categories = [
+        {"name": "Food", "amount": "3,840", "percent": 46},
+        {"name": "Bills", "amount": "2,100", "percent": 25},
+        {"name": "Transport", "amount": "1,280", "percent": 15},
+        {"name": "Entertainment", "amount": "1,120", "percent": 14},
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user,
+        stats=stats,
+        transactions=transactions,
+        categories=categories,
+    )
 
 @app.route("/expenses/add")
 def add_expense():
