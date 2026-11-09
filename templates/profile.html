@@ -8,9 +8,30 @@
 {% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+{% endif %}
+{% endwith %}
 <div class="profile-page">
 
     <!-- User info card -->
+    <section class="profile-filter">
+        <div class="profile-filter-presets">
+            <a href="{{ url_for('profile') }}" class="{{ 'active' if active_preset == 'all_time' else '' }}">All Time</a>
+            <a href="{{ url_for('profile', date_from=preset_this_month_from, date_to=preset_to) }}" class="{{ 'active' if active_preset == 'this_month' else '' }}">This Month</a>
+            <a href="{{ url_for('profile', date_from=preset_last_3_months_from, date_to=preset_to) }}" class="{{ 'active' if active_preset == 'last_3_months' else '' }}">Last 3 Months</a>
+            <a href="{{ url_for('profile', date_from=preset_last_6_months_from, date_to=preset_to) }}" class="{{ 'active' if active_preset == 'last_6_months' else '' }}">Last 6 Months</a>
+        </div>
+
+        <form class="profile-filter-form" method="get" action="{{ url_for('profile') }}">
+            <label for="filter-from">From</label>
+            <input id="filter-from" type="date" name="date_from" value="{{ date_from or '' }}">
+            <label for="filter-to">To</label>
+            <input id="filter-to" type="date" name="date_to" value="{{ date_to or '' }}">
+            <button type="submit">Apply</button>
+        </form>
+    </section>
     <section class="profile-user-card">
         <div class="profile-avatar">{{ user.initials }}</div>
         <div class="profile-user-info">

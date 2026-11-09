@@ -133,13 +133,15 @@ def get_user_by_id(user_id):
         conn.close()
 
 
-def get_summary_stats(user_id):
+def get_summary_stats(user_id, date_from=None, date_to=None):
     conn = get_db()
     try:
         row = conn.execute(
             "SELECT COALESCE(SUM(amount), 0) AS total, COUNT(*) AS cnt "
-            "FROM expenses WHERE user_id = ?",
-            (user_id,),
+            "FROM expenses WHERE user_id = ? "
+            "AND (? IS NULL OR date >= ?) "
+            "AND (? IS NULL OR date <= ?)",
+            (user_id, date_from, date_from, date_to, date_to),
         ).fetchone()
         total_spent = row["total"] if row is not None else 0
         transaction_count = row["cnt"] if row is not None else 0
@@ -147,8 +149,10 @@ def get_summary_stats(user_id):
         top_row = conn.execute(
             "SELECT category, SUM(amount) AS total "
             "FROM expenses WHERE user_id = ? "
+            "AND (? IS NULL OR date >= ?) "
+            "AND (? IS NULL OR date <= ?) "
             "GROUP BY category ORDER BY total DESC, category ASC LIMIT 1",
-            (user_id,),
+            (user_id, date_from, date_from, date_to, date_to),
         ).fetchone()
         top_category = top_row["category"] if top_row is not None else "—"
 
@@ -160,15 +164,16 @@ def get_summary_stats(user_id):
     finally:
         conn.close()
 
-
-def get_recent_transactions(user_id, limit=10):
+def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     conn = get_db()
     try:
         rows = conn.execute(
             "SELECT date, description, category, amount "
             "FROM expenses WHERE user_id = ? "
+            "AND (? IS NULL OR date >= ?) "
+            "AND (? IS NULL OR date <= ?) "
             "ORDER BY date DESC, id DESC LIMIT ?",
-            (user_id, limit),
+            (user_id, date_from, date_from, date_to, date_to, limit),
         ).fetchall()
         return [
             {
@@ -182,15 +187,16 @@ def get_recent_transactions(user_id, limit=10):
     finally:
         conn.close()
 
-
-def get_category_breakdown(user_id):
+def get_category_breakdown(user_id, date_from=None, date_to=None):
     conn = get_db()
     try:
         rows = conn.execute(
             "SELECT category AS name, SUM(amount) AS amount "
             "FROM expenses WHERE user_id = ? "
+            "AND (? IS NULL OR date >= ?) "
+            "AND (? IS NULL OR date <= ?) "
             "GROUP BY category ORDER BY amount DESC, name ASC",
-            (user_id,),
+            (user_id, date_from, date_from, date_to, date_to),
         ).fetchall()
         items = [{"name": r["name"], "amount": r["amount"]} for r in rows]
         if not items:

@@ -252,3 +252,54 @@
     .profile-category-row { grid-template-columns: 1fr; gap: 0.5rem; }
     .profile-category-amount { text-align: left; }
 }
+
+/* Date filter */
+.profile-filter {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.profile-filter-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.profile-filter-presets a {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface, #f3f4f6);
+  color: var(--text, #111);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+.profile-filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.profile-filter-form input[type="date"] {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border, #d1d5db);
+  border-radius: 0.375rem;
+  background: var(--bg, #fff);
+  color: var(--text, #111);
+}
+.profile-filter-form button {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: var(--accent, #2563eb);
+  color: #fff;
+  cursor: pointer;
+}
+.profile-filter-active {
+  font-size: 0.875rem;
+  color: var(--muted, #6b7280);
+}
+
+.profile-filter-presets a.active {
+  background: var(--accent, #2563eb);
+  color: #fff;
+}
