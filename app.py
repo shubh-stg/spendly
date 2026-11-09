@@ -1,9 +1,22 @@
 import os
 import re
+from datetime import date, datetime, timedelta
 from sqlite3 import IntegrityError
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
+
+def _valid_iso_date(value):
+    if not value:
+        return None
+    value = value.strip()
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except (TypeError, ValueError):
+        return None
+    return value
+
+
 
 from database.db import (
     get_db,
@@ -118,6 +131,13 @@ def profile():
         flash("Please log in to view your profile.", "error")
         return redirect(url_for("login"))
 
+    date_from = _valid_iso_date(request.args.get("date_from"))
+    date_to = _valid_iso_date(request.args.get("date_to"))
+    if date_from and date_to and date_from > date_to:
+        flash("Start date must be before end date.", "error")
+        date_from = None
+        date_to = None
+
     name = user_data["name"]
     initials = "".join(part[0].upper() for part in name.split() if part)[:2]
 
@@ -127,9 +147,25 @@ def profile():
         "initials": initials,
         "member_since": user_data["member_since"],
     }
-    stats = get_summary_stats(user_id)
-    transactions = get_recent_transactions(user_id, limit=10)
-    categories = get_category_breakdown(user_id)
+    stats = get_summary_stats(user_id, date_from=date_from, date_to=date_to)
+    transactions = get_recent_transactions(user_id, limit=10, date_from=date_from, date_to=date_to)
+    categories = get_category_breakdown(user_id, date_from=date_from, date_to=date_to)
+
+    today = date.today()
+    this_month_from = today.replace(day=1).isoformat()
+    last_3_months_from = (today - timedelta(days=90)).isoformat()
+    last_6_months_from = (today - timedelta(days=180)).isoformat()
+    preset_to = today.isoformat()
+
+    active_preset = None
+    if date_from == this_month_from and date_to == preset_to:
+        active_preset = "this_month"
+    elif date_from == last_3_months_from and date_to == preset_to:
+        active_preset = "last_3_months"
+    elif date_from == last_6_months_from and date_to == preset_to:
+        active_preset = "last_6_months"
+    elif not date_from and not date_to:
+        active_preset = "all_time"
 
     return render_template(
         "profile.html",
@@ -137,6 +173,13 @@ def profile():
         stats=stats,
         transactions=transactions,
         categories=categories,
+        date_from=date_from,
+        date_to=date_to,
+        active_preset=active_preset,
+        preset_this_month_from=this_month_from,
+        preset_last_3_months_from=last_3_months_from,
+        preset_last_6_months_from=last_6_months_from,
+        preset_to=preset_to,
     )
 
 @app.route("/expenses/add")
