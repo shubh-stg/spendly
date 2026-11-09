@@ -105,3 +105,110 @@ def seed_db():
     )
     conn.commit()
     conn.close()
+
+def get_user_by_id(user_id):
+    import datetime as _dt
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT name, email, created_at FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        created_at = row["created_at"]
+        dt = None
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+            try:
+                dt = _dt.datetime.strptime(created_at, fmt)
+                break
+            except (TypeError, ValueError):
+                continue
+        member_since = dt.strftime("%B %Y") if dt else created_at
+        return {
+            "name": row["name"],
+            "email": row["email"],
+            "member_since": member_since,
+        }
+    finally:
+        conn.close()
+
+
+def get_summary_stats(user_id):
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS total, COUNT(*) AS cnt "
+            "FROM expenses WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+        total_spent = row["total"] if row is not None else 0
+        transaction_count = row["cnt"] if row is not None else 0
+
+        top_row = conn.execute(
+            "SELECT category, SUM(amount) AS total "
+            "FROM expenses WHERE user_id = ? "
+            "GROUP BY category ORDER BY total DESC, category ASC LIMIT 1",
+            (user_id,),
+        ).fetchone()
+        top_category = top_row["category"] if top_row is not None else "—"
+
+        return {
+            "total_spent": total_spent,
+            "transaction_count": transaction_count,
+            "top_category": top_category,
+        }
+    finally:
+        conn.close()
+
+
+def get_recent_transactions(user_id, limit=10):
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT date, description, category, amount "
+            "FROM expenses WHERE user_id = ? "
+            "ORDER BY date DESC, id DESC LIMIT ?",
+            (user_id, limit),
+        ).fetchall()
+        return [
+            {
+                "date": r["date"],
+                "description": r["description"],
+                "category": r["category"],
+                "amount": r["amount"],
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
+def get_category_breakdown(user_id):
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT category AS name, SUM(amount) AS amount "
+            "FROM expenses WHERE user_id = ? "
+            "GROUP BY category ORDER BY amount DESC, name ASC",
+            (user_id,),
+        ).fetchall()
+        items = [{"name": r["name"], "amount": r["amount"]} for r in rows]
+        if not items:
+            return []
+
+        total = sum(i["amount"] for i in items)
+        if total == 0:
+            for i in items:
+                i["pct"] = 0
+            return items
+
+        for i in items:
+            exact = i["amount"] / total * 100
+            i["pct"] = int(round(exact))
+
+        leftover = 100 - sum(i["pct"] for i in items)
+        if items:
+            items[0]["pct"] += leftover
+        return items
+    finally:
+        conn.close()

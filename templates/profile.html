@@ -71,7 +71,7 @@
         <h2 class="profile-section-title">Spending by category</h2>
         <div class="profile-categories">
             {% for cat in categories %}
-            {% set w = (cat.percent // 5) * 5 %}
+            {% set w = (cat.pct // 5) * 5 %}
             <div class="profile-category-row">
                 <div class="profile-category-name">{{ cat.name }}</div>
                 <div class="profile-bar-track">

@@ -5,7 +5,17 @@ from sqlite3 import IntegrityError
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.db import (
+    get_db,
+    init_db,
+    seed_db,
+    create_user,
+    get_user_by_email,
+    get_user_by_id,
+    get_summary_stats,
+    get_recent_transactions,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-secret")
@@ -101,29 +111,25 @@ def profile():
         flash("Please log in to view your profile.", "error")
         return redirect(url_for("login"))
 
+    user_id = session["user_id"]
+    user_data = get_user_by_id(user_id)
+    if user_data is None:
+        session.clear()
+        flash("Please log in to view your profile.", "error")
+        return redirect(url_for("login"))
+
+    name = user_data["name"]
+    initials = "".join(part[0].upper() for part in name.split() if part)[:2]
+
     user = {
-        "name": "Alex Kumar",
-        "email": "alex@example.com",
-        "initials": "AK",
-        "member_since": "January 2024",
+        "name": name,
+        "email": user_data["email"],
+        "initials": initials,
+        "member_since": user_data["member_since"],
     }
-    stats = {
-        "total_spent": "12,480",
-        "transaction_count": 24,
-        "top_category": "Food",
-    }
-    transactions = [
-        {"date": "2024-05-12", "description": "Groceries — Big Bazaar", "category": "Food", "amount": "1,240"},
-        {"date": "2024-05-10", "description": "Monthly electricity bill", "category": "Bills", "amount": "2,100"},
-        {"date": "2024-05-08", "description": "Uber ride to office", "category": "Transport", "amount": "320"},
-        {"date": "2024-05-05", "description": "Movie tickets", "category": "Entertainment", "amount": "600"},
-    ]
-    categories = [
-        {"name": "Food", "amount": "3,840", "percent": 46},
-        {"name": "Bills", "amount": "2,100", "percent": 25},
-        {"name": "Transport", "amount": "1,280", "percent": 15},
-        {"name": "Entertainment", "amount": "1,120", "percent": 14},
-    ]
+    stats = get_summary_stats(user_id)
+    transactions = get_recent_transactions(user_id, limit=10)
+    categories = get_category_breakdown(user_id)
 
     return render_template(
         "profile.html",
